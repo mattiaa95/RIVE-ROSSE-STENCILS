@@ -1,6 +1,6 @@
 # RIVE ROSSE STENCILS
 
-**Language:** [Español](README.md) · [Italiano](README.it.md) · English
+**Language:** [Italiano](README.md) · [Español](README.es.md) · English
 
 Parametric 3D stencils for marking the **RIVE ROSSE** trails: trail signs, technical signs, arrows, difficulty levels, help signs and 190 × 80 mm double plates.
 
@@ -175,8 +175,8 @@ RIVE_ROSSE_STENCILS/
 │   ├── segnali/              16 signals, 190 × 190
 │   ├── segnali_stretti/      16 singles + 16 doubles
 │   └── trails_2/             16 singles + 16 doubles
-├── README.md                 Español
-├── README.it.md              Italiano
+├── README.md                 Italiano
+├── README.es.md              Español
 ├── README.en.md              English
 └── requirements.txt
 ```
