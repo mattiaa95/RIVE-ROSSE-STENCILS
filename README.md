@@ -1,5 +1,7 @@
 # RIVE ROSSE STENCILS
 
+**Idioma:** Español · [Italiano](README.it.md) · [English](README.en.md)
+
 Stencils 3D paramétricos para señalizar los trails de **RIVE ROSSE**: carteles de trail, señales técnicas, flechas, niveles, ayuda y placas dobles de 190 × 80 mm.
 
 Todo el catálogo se genera desde Python a partir de contornos vectoriales, se valida como malla cerrada y se exporta en STL a escala real en milímetros.
@@ -173,7 +175,9 @@ RIVE_ROSSE_STENCILS/
 │   ├── segnali/              16 señales 190 × 190
 │   ├── segnali_stretti/      16 singulares + 16 dobles
 │   └── trails_2/             16 singulares + 16 dobles
-├── README.md
+├── README.md                 Español
+├── README.it.md              Italiano
+├── README.en.md              English
 └── requirements.txt
 ```
 
