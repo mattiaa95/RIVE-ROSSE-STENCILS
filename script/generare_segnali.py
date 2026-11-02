@@ -15,7 +15,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Sequence, Tuple
 
-import trimesh
 import generare_stencil as base
 from shapely import affinity
 from shapely.geometry import LineString, Polygon
@@ -231,20 +230,7 @@ def construir_diseno(senal: Senal, font, glyphSet, hmtx,
 
 
 def _crear_malla(solido: Polygon):
-    try:
-        malla = trimesh.creation.extrude_polygon(
-            solido, height=GROSOR, engine="triangle"
-        )
-    except Exception as exc:
-        raise base.ErrorStencil(f"No se pudo extruir la placa: {exc}")
-
-    if malla.volume < 0:
-        malla.invert()
-
-    malla.apply_translation([0.0, 0.0, -float(malla.bounds[0][2])])
-    if not malla.is_winding_consistent:
-        malla.fix_normals()
-    return malla
+    return base._crear_malla(solido)
 
 
 def _generar(senal: Senal, salida: Path, font, glyphSet, hmtx,

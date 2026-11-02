@@ -12,7 +12,7 @@ Salida:
     stencil_trail_m33.stl       (mallas cerradas, listas para laminador)
 
 Dependencias:
-    python3 -m pip install --user fonttools shapely trimesh manifold3d numpy
+    python3 -m pip install --user -r requirements.txt
 
 Incluye Saira Stencil One (OFL), una stencil gruesa. El pie de la L se reconecta
 porque esta fuente lo trae separado y parecia un punto. Tambien puedes usar la
@@ -87,16 +87,21 @@ except ImportError:
     FALTAN.append("trimesh")
 
 try:
-    import manifold3d  # noqa: F401  (triangulacion robusta con agujeros)
+    import manifold3d  # noqa: F401  (extrusion solida con agujeros)
 except ImportError:
     FALTAN.append("manifold3d")
+
+try:
+    import scipy  # noqa: F401  (trimesh lo necesita para separar piezas)
+except ImportError:
+    FALTAN.append("scipy")
 
 if FALTAN:
     print("ERROR: faltan dependencias de Python:")
     print("  " + ", ".join(FALTAN))
     print()
     print("Instalalas con:")
-    print("  python3 -m pip install --user fonttools shapely trimesh manifold3d numpy")
+    print("  python3 -m pip install --user -r requirements.txt")
     sys.exit(1)
 
 
@@ -737,10 +742,33 @@ def _reforzar_puentes(solido: Polygon, ancho_puente: float) -> Tuple[Polygon, in
 # CREACION Y VALIDACION DEL STL
 # ---------------------------------------------------------------------------
 
+def _contornos_manifold(solido: Polygon) -> List[np.ndarray]:
+    """Convierte el solido en contornos cerrados con la orientacion correcta."""
+    contornos: List[np.ndarray] = []
+    for poligono in _partes_poligonales(solido):
+        exterior = np.asarray(poligono.exterior.coords)[:-1]
+        if not poligono.exterior.is_ccw:
+            exterior = exterior[::-1]
+        contornos.append(exterior)
+        for interior in poligono.interiors:
+            hueco = np.asarray(interior.coords)[:-1]
+            if interior.is_ccw:
+                hueco = hueco[::-1]
+            contornos.append(hueco)
+    return contornos
+
+
 def _crear_malla(solido: Polygon):
     try:
-        malla = trimesh.creation.extrude_polygon(
-            solido, height=GROSOR, engine="manifold"
+        seccion = manifold3d.CrossSection(_contornos_manifold(solido))
+        cuerpo = manifold3d.Manifold.extrude(seccion, float(GROSOR))
+        # Elimina triangulos de area cero en bordes rectos alineados.
+        cuerpo = cuerpo.simplify(1.0e-9)
+        malla_manifold = cuerpo.to_mesh()
+        malla = trimesh.Trimesh(
+            vertices=np.asarray(malla_manifold.vert_properties)[:, :3],
+            faces=np.asarray(malla_manifold.tri_verts),
+            process=False,
         )
     except Exception as exc:
         raise ErrorStencil(f"No se pudo extruir la placa: {exc}")
